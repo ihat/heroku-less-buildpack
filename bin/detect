@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 
-puts "Boost + Vowpal Wabbit"
+puts "node.js + lessc"
 exit 0
