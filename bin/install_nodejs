@@ -4,6 +4,9 @@ set -eo pipefail
 BUILD_DIR=$1
 VENDOR_DIR="$BUILD_DIR/vendor"
 
+echo 'BUILD_DIR' $BUILD_DIR
+echo 'VENDOR_DIR' $VENDOR_DIR
+
 NODE_VERSION=0.8.12
 NODE_BASENAME=node-v${NODE_VERSION}-linux-x64
 NODE_ARCHIVE="http://nodejs.org/dist/v${NODE_VERSION}/${NODE_BASENAME}.tar.gz"
@@ -12,6 +15,8 @@ NODE_ARCHIVE="http://nodejs.org/dist/v${NODE_VERSION}/${NODE_BASENAME}.tar.gz"
 tempdir="$( mktemp -t node_XXXX )"
 rm -rf $tempdir
 mkdir -p $tempdir
+
+echo 'tempdir' $tempdir
 
 pushd $tempdir
 curl -s -L -o tmp-nodejs.tar.gz $NODE_ARCHIVE
