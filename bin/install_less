@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-set -eo pipefail
-
-/app/vendor/node/bin/npm install -g less

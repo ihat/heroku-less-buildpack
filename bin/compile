@@ -1,18 +1,32 @@
 #!/usr/bin/env bash
-set -eo pipefail
+# bin/compile <build-dir> <cache-dir>
 
-# Work around Heroku bug whereby pylibmc isn't available during
-# compile phase. See: https://github.com/heroku/heroku-buildpack-python/issues/57
-export MEMCACHE_SERVERS='' MEMCACHIER_SERVERS=''
+# Fail fast
+set -e
 
-if [ -f bin/install_nodejs ]; then
-    echo "-----> Running install_nodejs"
-    chmod +x bin/install_nodejs
-    bin/install_nodejs
+# Debug
+# set -x
 
-    if [ -f bin/install_less ]; then
-        echo "-----> Running install_lessc"
-        chmod +x bin/install_less
-        bin/install_less
-    fi
-fi
+BUILD_DIR=$1
+CACHE_DIR=$2
+VENDOR_DIR="$BUILD_DIR/vendor"
+EXPORT_PATH="$PWD/export"
+PROFILE_PATH="$BUILD_DIR/.profile.d/node.sh"
+
+mkdir -p $(dirname $PROFILE_PATH)
+mkdir -p $VENDOR_DIR
+
+function set-default-env (){
+  echo "export $1=\$$1:/app/vendor/$2" >> $PROFILE_PATH
+  echo "export $1=\$$1:/app/vendor/$2" >> $EXPORT_PATH
+}
+
+echo "-----> Fetching and vendoring node & less"
+curl "https://s3.amazonaws.com/opendoor-deps/node-with-less.tar.gz" -s -o - | tar xzf - -C "$VENDOR_DIR"
+
+# FYI we do this and set the export path explicitly because we cannot assume all buildpacks copy this dir over
+# We need to also leave the vendor dir repo in place, as the current app vendor gets blown away and replaced with
+# what is in the build dir
+cp -R "$VENDOR_DIR/node" "/app/vendor/node"
+
+set-default-env PATH "node/bin"
